@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Panel de Control</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body onload="GetArduinoInputs()">
+    <div id="mySidenav" align="center" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <input id="dimmer" class="sliderD" type="range" name="grade" orient="vertical" style="-webkit-appearance: slider-vertical; height:80%;"
+            min="0" max="100" step="1" value="0" oninput="showdimmer()" onchange="showdimmer()" onclick="showdimmer()" />
+        <p class="text" id="num">0</p>
+    </div>
+    <div class="container">
+        <div class="row align-items-center general">
+            <div class="row-fluid rw">
+                <div class="col-sm-3 col r" align="center" style="background-color:#21232D;cursor: pointer;">
+                    <span id="luz" class="luz" onclick="openNav()">
+                        <i class="icon_lu fa fa-lightbulb-o" style="cursor: pointer; margin-top:1em;"></i>
+                    </span>
+                    <p class="text">Luz 1</p>
+                </div>
+                <div class="col-sm-3 col r" align="center" style="background-color:#21232D;">
+                    <span class="gas" onmouseout="this.style.background='#272833'" onmouseover="this.style.background='#30313e'">
+                        <P class="text-gas" id="v-gas"  style="cursor: pointer;">0%</P>
+                    </span>
+                    <p class="text">Gas</p>
+                </div>
+                <div class="col-sm-3 col r" align="center" style="background-color:#21232D;">
+                    <span id="pres" class="pres">
+                        <i class="icon_pres fa fa-users" style="cursor: pointer;margin-top:1.5em;"></i>
+                    </span>
+                    <p class="text">Presencia</p>
+                </div>
+                <div class="col-sm-3 col r2" align="center" style="background-color:#21232D;">
+                    <span class="hum" onmouseout="this.style.background='#272833'" onmouseover="this.style.background='#30313e'">
+                            <P class="text-gas" id="v-humedad" style="cursor: pointer;">0%</P>
+                    </span>
+                    <p class="text">Humedad</p>
+                </div>
+            </div>
+            <div class="row-fluid rw">
+                <div class="col-sm-6 col r3" align="center" style="background-color:#21232D;" onclick="act_alarm()">
+                    <span id="alarm" class="alarma" style="cursor: pointer;" onclick="act_alarm()">
+                            <i class="icon_al fa fa-bell-o" style="cursor: pointer;"  onclick="act_alarm()"></i>
+                    </span>
+                    <p class="al">Alarma</p>
+                </div>
+                <div class="col-sm-6 col r3" align="center" style="background-color:#21232D;">
+                    <span class="motor" onmouseout="this.style.background='#272833'" onmouseover="this.style.background='#30313e'">
+                                    <i class="icon_mo fa fa-repeat" style="cursor: pointer;"></i>
+                                </span>
+                    <p class="text">Motor</p>
+                    <input type="range" class="slider" id="v-motor" name="v-motor" min="0" max="100" step="1" value="0" oninput="showvrange()"
+                        onchange="showvrange()" />
+                    <p class="text" id="v-rango">0</p>s
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-sm-6 col r4" style="background-color:#21232D;">
+                    <i class="icon_tem fa fa-thermometer-empty"></i>
+                    <p id="temp" class="temp">0C(0F)</p>
+                    <p id="date" class="date"></p>
+                    <p id="dia" class="dia"></p>
+                </div>
+                <div class="col-sm-6 col r4" style="background-color:#21232D;" ;>
+                    <i class="icon_hu fa fa-tint"></i>
+                    <p class="humS" id="humedadS">0%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<style>
+    body {
+        background: #1c1d26;
+    }
+
+    .sliderD::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #C2C2C2;
+        cursor: pointer;
+    }
+
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 25px;
+        background: rgba(255, 255, 255, 0.3);
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #C2C2C2;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #C2C2C2;
+        cursor: pointer;
+    }
+
+
+    .general {
+        border-radius: 4px;
+        border: solid 0.5px rgba(255, 255, 255, 0.3);
+        background: #21232D;
+    }
+
+    .dia {
+        position: sticky;
+        font-size: 2.3em;
+        margin-left: 75%;
+        margin-top: -1.5em;
+        margin-bottom: -0.1em;
+    }
+
+    .container {
+        z-index: 1;
+        padding-top: 2em;
+    }
+
+    .r {
+        margin-top: 0.5em;
+        border-right: solid 0.5px rgba(255, 255, 255, 0.1);
+    }
+
+    .r2 {
+        margin-top: 0.5em;
+    }
+
+    .r3 {
+        border-top: solid 0.5px rgba(255, 255, 255, 0.1);
+        border-right: solid 0.5px rgba(255, 255, 255, 0.1);
+        border-bottom: solid 0.5px rgba(255, 255, 255, 0.1);
+    }
+
+    .r4 {
+
+        border-right: solid 0.5px rgba(255, 255, 255, 0.1);
+        border-bottom: solid 0.5px rgba(255, 255, 255, 0.1);
+    }
+
+    .text {
+        opacity: 0.5;
+        color: rgba(240, 248, 255, 0.5);
+    }
+
+    .al {
+        opacity: 0.5;
+        font-size: 1.5em;
+        color: rgba(240, 248, 255, 0.5);
+    }
+
+    .humS {
+        opacity: 0.5;
+        position: sticky;
+        margin-left: 48%;
+        margin-top: -1.8em;
+        margin-bottom: 0.5em;
+        font-size: 2em;
+        color: rgba(240, 248, 255, 0.5);
+    }
+
+    .temp {
+        opacity: 0.5;
+        position: sticky;
+        margin-left: 2em;
+        margin-top: -2.1em;
+        margin-bottom: 0.5em;
+        font-size: 2em;
+        color: rgba(240, 248, 255, 0.5);
+    }
+
+    .date {
+        opacity: 0.5;
+        position: sticky;
+        font-size: 1.8em;
+        margin-left: 49%;
+        margin-top: -2.5em;
+        margin-bottom: 1.2em;
+        color: rgba(240, 248, 255, 0.5);
+    }
+
+    .luz {
+        position: relative;
+        align-content: center;
+        margin-top: 1em;
+        background: #272833;
+        border-radius: 100%;
+        display: inline-block;
+        text-align: center;
+        width: 6em;
+        line-height: 3.5em;
+    }
+
+    .pres {
+        position: relative;
+        align-content: center;
+        margin-top: 1em;
+        background: #272833;
+        border-radius: 100%;
+        display: inline-block;
+        text-align: center;
+        width: 6em;
+        line-height: 3.5em;
+    }
+
+    .alarma {
+        position: relative;
+        background: #272833;
+        margin-top: 1.68em;
+        margin-bottom: -0.1em;
+        border-radius: 100%;
+        display: inline-block;
+        text-align: center;
+        line-height: 10em;
+        width: 12.5em;
+    }
+
+    .motor {
+        position: relative;
+        background: #272833;
+        margin-top: 0.95em;
+        border-radius: 100%;
+        display: inline-block;
+        text-align: center;
+        line-height: 6em;
+        width: 8.5em;
+    }
+
+    .hum {
+        margin-top: 1em;
+        position: relative;
+        background: #272833;
+        border-radius: 50%;
+        display: inline-block;
+        text-align: center;
+        width: 6em;
+        line-height: 3.7em;
+    }
+
+    .gas {
+        margin-top: 1em;
+        position: relative;
+        background: #272833;
+        border-radius: 50%;
+        display: inline-block;
+        text-align: center;
+        width: 6em;
+        line-height: 3.7em;
+    }
+
+    .text-gas {
+        color: rgba(240, 248, 255, 0.5);
+        padding-top: 0.9em;
+        font-size: 1.3em;
+    }
+
+    .icon_lu::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 3.6em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+
+    .icon_pres::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 3em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+
+    .icon_mo::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        display: inline-block;
+        margin-top: 0.7em;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 3.4em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+
+    .icon_tem::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        display: inline-block;
+        margin-top: 0.1em;
+        margin-bottom: 0.4em;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 3.4em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+
+    .icon_hu::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        margin-top: 0.15em;
+        margin-bottom: 0.1em;
+        display: inline-block;
+        position: relative;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 3.4em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+
+    .icon_al::before {
+        font-family: FontAwesome;
+        font-style: normal;
+        display: inline-block;
+        margin-top: 0.5em;
+        font-weight: normal;
+        text-transform: none !important;
+        font-size: 5.4em;
+        color: #272833 !important;
+        text-shadow: 1px 0 0 rgba(255, 255, 255, 0.31), -1px 0 0 rgba(255, 255, 255, 0.31), 0 1px 0 rgba(255, 255, 255, 0.31), 0 -1px 0 rgba(255, 255, 255, 0.31);
+    }
+    /*Slider vertical*/
+
+    .sidenav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+    .sidenav a {
+        padding: 8px 8px 8px 10px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+
+    .sidenav a:hover {
+        color: #f1f1f1;
+    }
+
+    .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+    }
+
+    @media screen and (max-height: 450px) {
+        .sidenav {
+            padding-top: 15px;
+        }
+        .sidenav a {
+            font-size: 18px;
+        }
+    }
+</style>
+<script>
+    var dia = new Array(7);
+    dia[0] = "Domingo";
+    dia[1] = "Lunes";
+    dia[2] = "Martes";
+    dia[3] = "Miercoles";
+    dia[4] = "Jueves";
+    dia[5] = "Viernes";
+    dia[6] = "Sabado";
+
+    var mes = new Array(13);
+    mes[0] = "Enero";
+    mes[1] = "Febrero";
+    mes[2] = "Marzo";
+    mes[3] = "Abril";
+    mes[4] = "Mayo";
+    mes[5] = "Junio";
+    mes[6] = "Julio";
+    mes[7] = "Agosto";
+    mes[8] = "Septiembre";
+    mes[9] = "Octubre";
+    mes[10] = "Noviembre";
+    mes[11] = "Diciembre";
+
+    var data_val = 0;
+    var a;
+    var dimmer;
+    var vmotor;
+    var prese;
+
+    function GetArduinoInputs() {
+        //Actualizacion de fecha y hora 
+        var tiempo = new Date();
+        var hora;
+        var minutos;
+        var segundos;
+        var DN;
+        if (tiempo.getHours() >= 13 && tiempo.getHours() <= 23) { hora = tiempo.getHours() - 12; DN = 'PM' } else { hora = 12; DN = 'AM' }
+        if (tiempo.getMinutes() < 10) { minutos = '0' + tiempo.getMinutes() } else { minutos = tiempo.getMinutes() }
+        if (tiempo.getSeconds() < 10) { segundos = '0' + tiempo.getSeconds() } else { segundos = tiempo.getSeconds() }
+        var dat = mes[tiempo.getMonth()] + ' ' + hora + ':' + minutos + ':' + segundos + DN;
+
+        document.getElementById("dia").innerHTML = dia[tiempo.getDay()];
+        document.getElementById("date").innerHTML = dat;
+
+        nocache = "&nocache=" + Math.random() * 1000000;
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    if (this.responseXML != null) {
+                        document.getElementById("v-gas").innerHTML = this.responseXML.getElementsByTagName('gas')[0].childNodes[0].nodeValue + '%';
+                        document.getElementById("v-humedad").innerHTML = this.responseXML.getElementsByTagName('humedad')[0].childNodes[0].nodeValue + '%';
+
+                        document.getElementById("humedadS").innerHTML = this.responseXML.getElementsByTagName('humedadS')[0].childNodes[0].nodeValue + '%';
+
+                        var ajaxtempC = this.responseXML.getElementsByTagName('tempC')[0].childNodes[0].nodeValue;
+                        var ajaxtempF = this.responseXML.getElementsByTagName('tempF')[0].childNodes[0].nodeValue;
+                        document.getElementById("temp").innerHTML = ajaxtempC + 'C(' + ajaxtempF + 'F)';
+
+                        var prese = this.responseXML.getElementsByTagName('presencia')[0].childNodes[0].nodeValue;
+                        if (prese == "ON") {
+                            document.getElementById("pres").style.background = '#327C4B';
+                        }
+                        else {
+                            document.getElementById("pres").style.background = '#272833';
+                        }
+                    }
+                }
+            }
+        }
+        request.open("GET", "ajax_inputs" + nocache + "&dimmer=" + dimmer + "&motor=" + vmotor+ "&alarma=" + alarma, true);
+        request.send(null);
+        setTimeout('GetArduinoInputs()', 200);
+    }
+
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "180px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+    }
+
+    function showdimmer() {
+        dimmer = document.getElementById('dimmer').value;
+        a = (dimmer * 255) / 100;
+        document.getElementById('num').innerHTML = dimmer;
+        document.getElementById('luz').style.background = 'rgb(' + a + ',' + a + ',' + a + ')';
+    }
+
+    var click = 0;
+    alarma=0;
+    var altT;
+
+    function act_alarm() {
+        if (click == 0) {
+            alarm();
+            click++;
+            alarma=1;
+        }
+        else {
+            click = 0;
+            alarma=0;
+            document.getElementById("alarm").style.background = '#272833';
+            clearTimeout(alrT);
+        }
+    }
+    function alarm() {
+            document.getElementById("alarm").style.background = '#A52D2D';
+            alrT=setTimeout("alarmB()", 200)
+    }
+    function alarmB() {
+            document.getElementById("alarm").style.background = '#272833';
+            alrT=setTimeout("alarm()", 200)
+    }
+
+    function showvrange() {
+        vmotor = document.getElementById('v-motor').value;
+        document.getElementById('v-rango').innerHTML = vmotor;
+    }
+
+</script>
